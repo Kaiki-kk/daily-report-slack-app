@@ -1,16 +1,36 @@
-import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
+import * as cdk from "aws-cdk-lib";
+import { Construct } from "constructs";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as dotenv from "dotenv";
+import * as nodeLambda from "aws-cdk-lib/aws-lambda-nodejs";
+import * as path from 'path'
+
+dotenv.config();
 
 export class DailyReportAppStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // The code that defines your stack goes here
+    const dailyReportAppHandler = new nodeLambda.NodejsFunction(
+      this,
+      "DailyReportAppHandler",
+      {
+        runtime: lambda.Runtime.NODEJS_18_X,
+        entry: path.join(__dirname, "../lambda/daily-report-app.ts"),
+        handler: "DailyReportAppHandler",
+        environment: {
+          SLACK_AUTH_TOKEN: process.env.SLACK_AUTH_TOKEN ?? "",
+          REGION: cdk.Stack.of(this).region,
+        },
+      }
+    );
 
-    // example resource
-    // const queue = new sqs.Queue(this, 'DailyReportAppQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+    const url = dailyReportAppHandler.addFunctionUrl({
+      authType: lambda.FunctionUrlAuthType["NONE"],
+      cors: {
+        allowedOrigins: ["*"],
+        allowedMethods: [lambda.HttpMethod.ALL],
+      },
+    });
   }
 }
