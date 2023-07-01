@@ -455,7 +455,7 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
 
   try {
     await client.chat.postMessage({
-      channel: "#sandbox",
+      channel: "#daily",
       blocks: [
         {
           type: "header",
