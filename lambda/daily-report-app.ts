@@ -24,7 +24,6 @@ app.shortcut("daily_report_in", async ({ ack, body, client }) => {
     await client.views.open({
       trigger_id: body.trigger_id,
       view: {
-        callback_id: "daily_report_in_id",
         title: {
           type: "plain_text",
           text: "出勤",
@@ -64,8 +63,13 @@ app.shortcut("daily_report_in", async ({ ack, body, client }) => {
 app.action("users_select_in_action", async ({ ack, body, client }) => {
   await ack();
 
+  // 実態と異なる方定義のため、anyで回避
+  const _body = body as any;
+
+  const selectedUserId = _body["actions"][0]["selected_user"];
+
   const slackUserResponse = await slackClient.users.profile.get({
-    user: body.user.id,
+    user: selectedUserId,
   });
 
   const assignedIssues = await linearClient.issues({
@@ -93,9 +97,6 @@ app.action("users_select_in_action", async ({ ack, body, client }) => {
       value: issue.url,
     };
   });
-
-  // 実態と異なる方定義のため、anyで回避
-  const _body = body as any;
 
   try {
     await client.views.update({
@@ -239,7 +240,7 @@ app.view("daily_report_in_id", async ({ ack, body, view, client }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `●  ${todoTextInput}`,
+            text: `${todoTextInput}`,
           },
         },
         {
@@ -313,9 +314,13 @@ app.shortcut("daily_report_out", async ({ ack, body, client }) => {
 
 app.action("users_select_out_action", async ({ ack, body, client }) => {
   await ack();
+  // 実態と異なる方定義のため、anyで回避
+  const _body = body as any;
+
+  const selectedUserId = _body["actions"][0]["selected_user"];
 
   const slackUserResponse = await slackClient.users.profile.get({
-    user: body.user.id,
+    user: selectedUserId,
   });
 
   const assignedIssues = await linearClient.issues({
@@ -327,7 +332,7 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
       },
       state: {
         type: {
-          in: ["unstarted", "started"],
+          in: ["started", "completed"],
         },
       },
     },
@@ -343,9 +348,6 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
       value: issue.url,
     };
   });
-
-  // 実態と異なる方定義のため、anyで回避
-  const _body = body as any;
 
   try {
     await client.views.update({
@@ -455,7 +457,7 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
 
   try {
     await client.chat.postMessage({
-      channel: "#daily",
+      channel: "#sandbox",
       blocks: [
         {
           type: "header",
@@ -489,7 +491,7 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `●  ${todoTextInput}`,
+            text: `${todoTextInput}`,
           },
         },
         {

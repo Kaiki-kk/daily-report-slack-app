@@ -16,7 +16,7 @@ export class DailyReportAppStack extends cdk.Stack {
       this,
       "DailyReportAppHandler",
       {
-        runtime: lambda.Runtime.NODEJS_18_X,
+        runtime: lambda.Runtime.NODEJS_16_X,
         entry: path.join(__dirname, "../lambda/daily-report-app.ts"),
         handler: "DailyReportAppHandler",
         memorySize: 512,
