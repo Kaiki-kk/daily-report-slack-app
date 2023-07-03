@@ -251,20 +251,10 @@ app.view("daily_report_in_id", async ({ ack, body, view, client }) => {
       channel: "#daily",
       blocks: [
         {
-          type: "header",
-          text: {
-            type: "plain_text",
-            text: ":newspaper:  出勤  :newspaper:",
-          },
-        },
-        {
-          type: "divider",
-        },
-        {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `<@${body["user"]["id"]}>`,
+            text: `:newspaper: |   *出勤*   |:newspaper: <@${body["user"]["id"]}>`,
           },
         },
         {
@@ -387,8 +377,6 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
       },
     },
   });
-
-  const states = await linearClient.workflowStates();
 
   const options =
     assignedIssues?.nodes.length > 0
@@ -554,20 +542,10 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
       channel: "#daily",
       blocks: [
         {
-          type: "header",
-          text: {
-            type: "plain_text",
-            text: ":newspaper:  退勤  :newspaper:",
-          },
-        },
-        {
-          type: "divider",
-        },
-        {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: `<@${body["user"]["id"]}>`,
+            text: `:newspaper: |   *退勤*  | :newspaper: <@${body["user"]["id"]}>`,
           },
         },
         {
