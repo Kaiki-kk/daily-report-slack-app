@@ -226,74 +226,114 @@ app.action("users_select_in_action", async ({ ack, body, client }) => {
 app.view("daily_report_in_id", async ({ ack, body, view, client }) => {
   await ack();
 
-  const todoInputs = view["state"]["values"]["linear_input_id"][
-    "multi_static_select_in_action"
-  ]["selected_options"]?.map((item) => ({
-    type: "section",
-    text: {
-      type: "mrkdwn",
-      text: `●  <${item.value}|${item.text.text}>`,
+  const blocks = [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `:newspaper: |   *出勤*   |:newspaper: <@${body["user"]["id"]}>`,
+      },
     },
-  })) as Block[];
+    {
+      type: "divider",
+    },
+  ];
 
-  const todoTextInput =
+  if (
+    view["state"]["values"]["linear_input_id"]["multi_static_select_in_action"][
+      "selected_options"
+    ]
+  ) {
+    view["state"]["values"]["linear_input_id"]["multi_static_select_in_action"][
+      "selected_options"
+    ]?.forEach((item, index) => {
+      if (index === 0) {
+        const issueBlocks = [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: ":calendar: |   *今日取り組むissue*  | :calendar: ",
+            },
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `●  <${item.value}|${item.text.text}>`,
+            },
+          },
+        ];
+        blocks.push(...issueBlocks);
+      } else {
+        blocks.push({
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `●  <${item.value}|${item.text.text}>`,
+          },
+        });
+      }
+    });
+  }
+
+  if (
     view["state"]["values"]["todo_input_id"]["plain_text_input_in_action"][
       "value"
-    ] ?? "";
+    ]
+  ) {
+    const otherTodoBlocks = [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: ":calendar: |   *その他今日やること*  | :calendar: ",
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: view["state"]["values"]["todo_input_id"][
+            "plain_text_input_in_action"
+          ]["value"],
+        },
+      },
+    ];
 
-  const contactTextInput =
+    blocks.push(...otherTodoBlocks);
+  }
+
+  if (
     view["state"]["values"]["contact_input_id"]["plain_text_input_in_action"][
       "value"
-    ] ?? "";
+    ]
+  ) {
+    const contactBlocks = [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: " :loud_sound: *連絡事項* :loud_sound:",
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: view["state"]["values"]["contact_input_id"][
+            "plain_text_input_in_action"
+          ]["value"],
+        },
+      },
+    ];
+    blocks.push(...contactBlocks);
+  }
 
   try {
     await client.chat.postMessage({
       channel: "#daily",
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `:newspaper: |   *出勤*   |:newspaper: <@${body["user"]["id"]}>`,
-          },
-        },
-        {
-          type: "divider",
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: ":calendar: |   *今日やること*  | :calendar: ",
-          },
-        },
-        ...todoInputs,
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `${todoTextInput}`,
-          },
-        },
-        {
-          type: "divider",
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: " :loud_sound: *連絡事項* :loud_sound:",
-          },
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `${contactTextInput}`,
-            verbatim: false,
-          },
-        },
-      ],
+      blocks,
     });
   } catch (err) {
     console.error(err);
@@ -517,74 +557,114 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
 app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
   await ack();
 
-  const todoInputs = view["state"]["values"]["linear_input_id"][
-    "multi_static_select_out_action"
-  ]["selected_options"]?.map((item) => ({
-    type: "section",
-    text: {
-      type: "mrkdwn",
-      text: `●  <${item.value}|${item.text.text}>`,
+  const blocks = [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `:newspaper: |   *退勤*  | :newspaper: <@${body["user"]["id"]}>`,
+      },
     },
-  })) as Block[];
+    {
+      type: "divider",
+    },
+  ];
 
-  const todoTextInput =
+  if (
+    view["state"]["values"]["linear_input_id"][
+      "multi_static_select_out_action"
+    ]["selected_options"]
+  ) {
+    view["state"]["values"]["linear_input_id"][
+      "multi_static_select_out_action"
+    ]["selected_options"]?.forEach((item, index) => {
+      if (index === 0) {
+        const issueBlocks = [
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: ":calendar: |   *今日取り組んだissue*  | :calendar: ",
+            },
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `●  <${item.value}|${item.text.text}>`,
+            },
+          },
+        ];
+        blocks.push(...issueBlocks);
+      } else {
+        blocks.push({
+          type: "section",
+          text: {
+            type: "mrkdwn",
+            text: `●  <${item.value}|${item.text.text}>`,
+          },
+        });
+      }
+    });
+  }
+
+  if (
     view["state"]["values"]["todo_input_id"]["plain_text_input_out_action"][
       "value"
-    ] ?? "";
+    ]
+  ) {
+    const otherTodoBlocks = [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: ":calendar: |   *その他今日やったこと*  | :calendar: ",
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: view["state"]["values"]["todo_input_id"][
+            "plain_text_input_out_action"
+          ]["value"],
+        },
+      },
+    ];
 
-  const contactTextInput =
+    blocks.push(...otherTodoBlocks);
+  }
+
+  if (
     view["state"]["values"]["contact_input_id"]["plain_text_input_out_action"][
       "value"
-    ] ?? "";
+    ]
+  ) {
+    const contactBlocks = [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: " :loud_sound: *連絡事項* :loud_sound:",
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: view["state"]["values"]["contact_input_id"][
+            "plain_text_input_out_action"
+          ]["value"],
+        },
+      },
+    ];
+    blocks.push(...contactBlocks);
+  }
 
   try {
     await client.chat.postMessage({
       channel: "#daily",
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `:newspaper: |   *退勤*  | :newspaper: <@${body["user"]["id"]}>`,
-          },
-        },
-        {
-          type: "divider",
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: ":calendar: |   *今日やったこと*  | :calendar: ",
-          },
-        },
-        ...todoInputs,
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `${todoTextInput}`,
-          },
-        },
-        {
-          type: "divider",
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: " :loud_sound: *連絡事項* :loud_sound:",
-          },
-        },
-        {
-          type: "section",
-          text: {
-            type: "mrkdwn",
-            text: `${contactTextInput}`,
-            verbatim: false,
-          },
-        },
-      ],
+      blocks,
     });
   } catch (err) {
     console.error(err);
