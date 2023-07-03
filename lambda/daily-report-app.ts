@@ -87,39 +87,23 @@ app.action("users_select_in_action", async ({ ack, body, client }) => {
     },
   });
 
-  const options = assignedIssues.nodes.map((issue) => {
-    return {
-      text: {
-        type: "plain_text" as "plain_text",
-        text: issue.title,
-        emoji: false,
-      },
-      value: issue.url,
-    };
-  });
+  const options =
+    assignedIssues?.nodes.length > 0
+      ? assignedIssues?.nodes?.map((issue) => {
+          return {
+            text: {
+              type: "plain_text" as "plain_text",
+              text: issue.title,
+              emoji: false,
+            },
+            value: issue.url,
+          };
+        })
+      : [];
 
-  try {
-    await client.views.update({
-      view_id: _body.container.view_id,
-      view: {
-        callback_id: "daily_report_in_id",
-        type: "modal",
-        submit: {
-          type: "plain_text",
-          text: "送信",
-          emoji: true,
-        },
-        close: {
-          type: "plain_text",
-          text: "キャンセル",
-          emoji: true,
-        },
-        title: {
-          type: "plain_text",
-          text: "出勤",
-          emoji: true,
-        },
-        blocks: [
+  const blocks =
+    options.length > 0
+      ? [
           {
             type: "divider",
           },
@@ -173,7 +157,65 @@ app.action("users_select_in_action", async ({ ack, body, client }) => {
             },
             optional: true,
           },
-        ],
+        ]
+      : [
+          {
+            type: "divider",
+          },
+          {
+            type: "input",
+            block_id: "todo_input_id",
+            label: {
+              type: "plain_text",
+              text: "その他今日やることを入力",
+              emoji: true,
+            },
+            element: {
+              type: "plain_text_input",
+              multiline: true,
+              action_id: "plain_text_input_in_action",
+            },
+            optional: true,
+          },
+          {
+            type: "input",
+            block_id: "contact_input_id",
+            label: {
+              type: "plain_text",
+              text: "連絡事項",
+              emoji: true,
+            },
+            element: {
+              type: "plain_text_input",
+              action_id: "plain_text_input_in_action",
+              multiline: true,
+            },
+            optional: true,
+          },
+        ];
+
+  try {
+    await client.views.update({
+      view_id: _body.container.view_id,
+      view: {
+        callback_id: "daily_report_in_id",
+        type: "modal",
+        submit: {
+          type: "plain_text",
+          text: "送信",
+          emoji: true,
+        },
+        close: {
+          type: "plain_text",
+          text: "キャンセル",
+          emoji: true,
+        },
+        title: {
+          type: "plain_text",
+          text: "出勤",
+          emoji: true,
+        },
+        blocks,
       },
     });
   } catch (err) {
@@ -206,7 +248,7 @@ app.view("daily_report_in_id", async ({ ack, body, view, client }) => {
 
   try {
     await client.chat.postMessage({
-      channel: "#sandbox",
+      channel: "#daily",
       blocks: [
         {
           type: "header",
@@ -257,7 +299,7 @@ app.view("daily_report_in_id", async ({ ack, body, view, client }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: contactTextInput,
+            text: `${contactTextInput}`,
             verbatim: false,
           },
         },
@@ -323,8 +365,16 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
     user: selectedUserId,
   });
 
+  const oneDayAgo = new Date(
+    new Date(new Date().getTime() - 24 * 60 * 60 * 1000)
+  );
+
   const assignedIssues = await linearClient.issues({
+    orderBy: "updatedAt" as any,
     filter: {
+      updatedAt: {
+        gt: oneDayAgo,
+      },
       assignee: {
         email: {
           eq: slackUserResponse?.profile?.email,
@@ -338,39 +388,25 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
     },
   });
 
-  const options = assignedIssues.nodes.map((issue) => {
-    return {
-      text: {
-        type: "plain_text" as "plain_text",
-        text: issue.title,
-        emoji: false,
-      },
-      value: issue.url,
-    };
-  });
+  const states = await linearClient.workflowStates();
 
-  try {
-    await client.views.update({
-      view_id: _body.container.view_id,
-      view: {
-        callback_id: "daily_report_out_id",
-        type: "modal",
-        submit: {
-          type: "plain_text",
-          text: "送信",
-          emoji: true,
-        },
-        close: {
-          type: "plain_text",
-          text: "キャンセル",
-          emoji: true,
-        },
-        title: {
-          type: "plain_text",
-          text: "退勤",
-          emoji: true,
-        },
-        blocks: [
+  const options =
+    assignedIssues?.nodes.length > 0
+      ? assignedIssues?.nodes?.map((issue) => {
+          return {
+            text: {
+              type: "plain_text" as "plain_text",
+              text: issue.title,
+              emoji: false,
+            },
+            value: issue.url,
+          };
+        })
+      : [];
+
+  const blocks =
+    options.length > 0
+      ? [
           {
             type: "divider",
           },
@@ -424,7 +460,65 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
             },
             optional: true,
           },
-        ],
+        ]
+      : [
+          {
+            type: "divider",
+          },
+          {
+            type: "input",
+            block_id: "todo_input_id",
+            label: {
+              type: "plain_text",
+              text: "その他今日やったことを入力",
+              emoji: true,
+            },
+            element: {
+              type: "plain_text_input",
+              multiline: true,
+              action_id: "plain_text_input_out_action",
+            },
+            optional: true,
+          },
+          {
+            type: "input",
+            block_id: "contact_input_id",
+            label: {
+              type: "plain_text",
+              text: "連絡事項",
+              emoji: true,
+            },
+            element: {
+              type: "plain_text_input",
+              action_id: "plain_text_input_out_action",
+              multiline: true,
+            },
+            optional: true,
+          },
+        ];
+
+  try {
+    await client.views.update({
+      view_id: _body.container.view_id,
+      view: {
+        callback_id: "daily_report_out_id",
+        type: "modal",
+        submit: {
+          type: "plain_text",
+          text: "送信",
+          emoji: true,
+        },
+        close: {
+          type: "plain_text",
+          text: "キャンセル",
+          emoji: true,
+        },
+        title: {
+          type: "plain_text",
+          text: "退勤",
+          emoji: true,
+        },
+        blocks,
       },
     });
   } catch (err) {
@@ -457,7 +551,7 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
 
   try {
     await client.chat.postMessage({
-      channel: "#sandbox",
+      channel: "#daily",
       blocks: [
         {
           type: "header",
@@ -508,7 +602,7 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
           type: "section",
           text: {
             type: "mrkdwn",
-            text: contactTextInput,
+            text: `${contactTextInput}`,
             verbatim: false,
           },
         },
