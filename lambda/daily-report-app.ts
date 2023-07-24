@@ -240,6 +240,10 @@ app.view("daily_report_in_id", async ({ ack, body, view, client }) => {
   ];
 
   if (
+    view["state"]["values"]["linear_input_id"] &&
+    view["state"]["values"]["linear_input_id"][
+      "multi_static_select_in_action"
+    ] &&
     view["state"]["values"]["linear_input_id"]["multi_static_select_in_action"][
       "selected_options"
     ]
@@ -571,6 +575,10 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
   ];
 
   if (
+    view["state"]["values"]["linear_input_id"] &&
+    view["state"]["values"]["linear_input_id"][
+      "multi_static_select_out_action"
+    ] &&
     view["state"]["values"]["linear_input_id"][
       "multi_static_select_out_action"
     ]["selected_options"]
