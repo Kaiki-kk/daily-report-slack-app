@@ -479,6 +479,21 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
           },
           {
             type: "input",
+            block_id: "trouble_input_id",
+            label: {
+              type: "plain_text",
+              text: "困っていること・躓いていること",
+              emoji: true,
+            },
+            element: {
+              type: "plain_text_input",
+              action_id: "plain_text_input_out_action",
+              multiline: true,
+            },
+            optional: true,
+          },
+          {
+            type: "input",
             block_id: "contact_input_id",
             label: {
               type: "plain_text",
@@ -509,6 +524,21 @@ app.action("users_select_out_action", async ({ ack, body, client }) => {
               type: "plain_text_input",
               multiline: true,
               action_id: "plain_text_input_out_action",
+            },
+            optional: true,
+          },
+          {
+            type: "input",
+            block_id: "trouble_input_id",
+            label: {
+              type: "plain_text",
+              text: "困っていること・躓いていること",
+              emoji: true,
+            },
+            element: {
+              type: "plain_text_input",
+              action_id: "plain_text_input_out_action",
+              multiline: true,
             },
             optional: true,
           },
@@ -661,6 +691,32 @@ app.view("daily_report_out_id", async ({ ack, body, view, client }) => {
         text: {
           type: "mrkdwn",
           text: view["state"]["values"]["contact_input_id"][
+            "plain_text_input_out_action"
+          ]["value"],
+        },
+      },
+    ];
+    blocks.push(...contactBlocks);
+  }
+
+  if (
+    view["state"]["values"]["trouble_input_id"]["plain_text_input_out_action"][
+      "value"
+    ]
+  ) {
+    const contactBlocks = [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: " :loud_sound: *困っていること・躓いていること* :loud_sound:",
+        },
+      },
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: view["state"]["values"]["trouble_input_id"][
             "plain_text_input_out_action"
           ]["value"],
         },
