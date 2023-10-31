@@ -17,13 +17,16 @@ export class DailyReportAppStack extends cdk.Stack {
       "DailyReportAppHandler",
       {
         runtime: lambda.Runtime.NODEJS_16_X,
-        entry: path.join(__dirname, "../lambda/daily-report-app.ts"),
+        entry: path.join(__dirname, "../lambda/index.ts"),
         handler: "DailyReportAppHandler",
         memorySize: 512,
         environment: {
           SLACK_AUTH_TOKEN: process.env.SLACK_AUTH_TOKEN ?? "",
           SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET ?? "",
-          LINEAR_API_KEY: process.env.LINEAR_API_KEY ?? "",
+          PURPOM_MEDIA_LAB_LINEAR_API_KEY:
+            process.env.PURPOM_MEDIA_LAB_LINEAR_API_KEY ?? "",
+          ACTIVE_CORE_LINEAR_API_KEY:
+            process.env.ACTIVE_CORE_LINEAR_API_KEY ?? "",
           REGION: cdk.Stack.of(this).region,
         },
       }
