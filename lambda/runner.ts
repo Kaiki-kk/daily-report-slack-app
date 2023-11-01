@@ -1,10 +1,5 @@
 import { IssueConnection } from "@linear/sdk";
-import {
-  Block,
-  PlainTextOption,
-  SelectOption,
-  SlackViewAction,
-} from "@slack/bolt";
+import { Block, PlainTextOption, SlackViewAction } from "@slack/bolt";
 
 const workspaces = [
   {
@@ -12,7 +7,7 @@ const workspaces = [
     value: "purpom-media-lab",
   },
   {
-    name: "Active Core",
+    name: "アクティブコア",
     value: "active-core-swat",
   },
 ];
