@@ -19,7 +19,7 @@ export class DailyReportAppStack extends cdk.Stack {
         runtime: lambda.Runtime.NODEJS_16_X,
         entry: path.join(__dirname, "../lambda/index.ts"),
         handler: "DailyReportAppHandler",
-        memorySize: 512,
+        memorySize: 1024,
         environment: {
           SLACK_AUTH_TOKEN: process.env.SLACK_AUTH_TOKEN ?? "",
           SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET ?? "",
