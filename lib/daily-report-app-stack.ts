@@ -25,8 +25,8 @@ export class DailyReportAppStack extends cdk.Stack {
           SLACK_SIGNING_SECRET: process.env.SLACK_SIGNING_SECRET ?? "",
           PURPOM_MEDIA_LAB_LINEAR_API_KEY:
             process.env.PURPOM_MEDIA_LAB_LINEAR_API_KEY ?? "",
-          ACTIVE_CORE_LINEAR_API_KEY:
-            process.env.ACTIVE_CORE_LINEAR_API_KEY ?? "",
+          HYPER_GAME_LINEAR_API_KEY:
+            process.env.HYPER_GAME_LINEAR_API_KEY ?? "",
           REGION: cdk.Stack.of(this).region,
         },
       }

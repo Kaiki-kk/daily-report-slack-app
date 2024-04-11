@@ -7,8 +7,8 @@ const workspaces = [
     value: "purpom-media-lab",
   },
   {
-    name: "アクティブコア",
-    value: "active-core-swat",
+    name: "ハイパーカジュアルゲーム",
+    value: "hyper-game",
   },
 ];
 

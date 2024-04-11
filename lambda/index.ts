@@ -69,10 +69,16 @@ app.view("in_new_modal", async ({ ack, body, view, client }) => {
     user: selectedUserId,
   });
 
-  const apiKey =
-    selectedWorkspace === "active-core-swat"
-      ? process.env.ACTIVE_CORE_LINEAR_API_KEY
-      : process.env.PURPOM_MEDIA_LAB_LINEAR_API_KEY;
+  const apiKey = (function () {
+    switch (selectedWorkspace) {
+      case "purpom-media-lab":
+        return process.env.PURPOM_MEDIA_LAB_LINEAR_API_KEY;
+      case "hyper-game":
+        return process.env.HYPER_GAME_LINEAR_API_KEY;
+      default:
+        return "";
+    }
+  })();
 
   const linearClient = new LinearClient({
     apiKey: apiKey ?? "",
@@ -170,10 +176,16 @@ app.view("out_new_modal", async ({ ack, body, view, client }) => {
     user: selectedUserId,
   });
 
-  const apiKey =
-    selectedWorkspace === "active-core-swat"
-      ? process.env.ACTIVE_CORE_LINEAR_API_KEY
-      : process.env.PURPOM_MEDIA_LAB_LINEAR_API_KEY;
+  const apiKey = (function () {
+    switch (selectedWorkspace) {
+      case "purpom-media-lab":
+        return process.env.PURPOM_MEDIA_LAB_LINEAR_API_KEY;
+      case "hyper-game":
+        return process.env.HYPER_GAME_LINEAR_API_KEY;
+      default:
+        return "";
+    }
+  })();
 
   const linearClient = new LinearClient({
     apiKey: apiKey ?? "",
