@@ -83,7 +83,7 @@ export const buildInNewModal = () => {
 };
 
 export const buildInModalBlocks = (assignedIssues: IssueConnection) => {
-  if (!assignedIssues?.nodes) {
+  if (!assignedIssues?.nodes || assignedIssues.nodes.length === 0) {
     return buildInNotLinearBlocks();
   }
   const options = assignedIssues?.nodes?.map((issue) => {
@@ -142,6 +142,41 @@ const buildInLinearBlocks = (options: PlainTextOption[]) => {
     },
     {
       type: "input",
+      block_id: "delay_linear_section",
+      label: {
+        type: "plain_text",
+        text: "持ち越しているタスク（想定以上に時間がかかっているタスク）があれば選択",
+        emoji: true,
+      },
+      element: {
+        type: "multi_static_select",
+        placeholder: {
+          type: "plain_text",
+          text: "issueを選択",
+          emoji: true,
+        },
+        options: options,
+        action_id: "multi_static_select_in_action",
+      },
+      optional: true,
+    },
+    {
+      type: "input",
+      block_id: "delay_task_reason",
+      label: {
+        type: "plain_text",
+        text: "持ち越しているタスク（想定以上に時間がかかっているタスク）の要因について",
+        emoji: true,
+      },
+      element: {
+        type: "plain_text_input",
+        action_id: "plain_text_input_in_action",
+        multiline: true,
+      },
+      optional: true,
+    },
+    {
+      type: "input",
       block_id: "contact_input",
       label: {
         type: "plain_text",
@@ -169,6 +204,21 @@ const buildInNotLinearBlocks = () => {
       label: {
         type: "plain_text",
         text: "その他今日やることを入力",
+        emoji: true,
+      },
+      element: {
+        type: "plain_text_input",
+        multiline: true,
+        action_id: "plain_text_input_in_action",
+      },
+      optional: true,
+    },
+    {
+      type: "input",
+      block_id: "delay_task_reason",
+      label: {
+        type: "plain_text",
+        text: "持ち越しているタスク（想定以上に時間がかかっているタスク）とその要因について",
         emoji: true,
       },
       element: {
@@ -240,6 +290,14 @@ export const buildInPostModalBlocks = (body: SlackViewAction) => {
   const todoInput =
     body?.view?.state?.values?.todo_input?.plain_text_input_in_action?.value;
 
+  const delaySelectedIssues =
+    body?.view?.state?.values?.delay_linear_section
+      ?.multi_static_select_in_action?.selected_options;
+
+  const delayTaskReason =
+    body?.view?.state?.values?.delay_task_reason?.plain_text_input_in_action
+      ?.value;
+
   const contactInput =
     body?.view?.state?.values?.contact_input?.plain_text_input_in_action?.value;
 
@@ -264,6 +322,26 @@ export const buildInPostModalBlocks = (body: SlackViewAction) => {
     });
   }
 
+  if (delaySelectedIssues) {
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: ":calendar: |   *持ち越しているタスク*  | :calendar: ",
+      },
+    });
+
+    delaySelectedIssues.forEach((issue) => {
+      blocks.push({
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `●  <${issue.value}|${issue.text.text}>`,
+        },
+      });
+    });
+  }
+
   // その他今日やることが入力されている場合
   if (todoInput) {
     blocks.push({
@@ -278,6 +356,23 @@ export const buildInPostModalBlocks = (body: SlackViewAction) => {
       text: {
         type: "mrkdwn",
         text: todoInput,
+      },
+    });
+  }
+
+  if (delayTaskReason) {
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: ":calendar: |   *持ち越しているタスクの要因*  | :calendar: ",
+      },
+    });
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: delayTaskReason,
       },
     });
   }
@@ -365,7 +460,7 @@ export const buildOutNewModal = () => {
 };
 
 export const buildOutModalBlocks = (assignedIssues: IssueConnection) => {
-  if (!assignedIssues?.nodes) {
+  if (!assignedIssues?.nodes || assignedIssues.nodes.length === 0) {
     return buildOutNotLinearBlocks();
   }
   const options = assignedIssues?.nodes?.map((issue) => {
@@ -427,7 +522,7 @@ const buildOutLinearBlocks = (options: PlainTextOption[]) => {
       block_id: "trouble_input",
       label: {
         type: "plain_text",
-        text: "困っていること・躓いていること",
+        text: "困っていること・躓いていること・遅れているタスクの詳細",
         emoji: true,
       },
       element: {
@@ -480,7 +575,7 @@ const buildOutNotLinearBlocks = () => {
       block_id: "trouble_input",
       label: {
         type: "plain_text",
-        text: "困っていること・躓いていること",
+        text: "困っていること・躓いていること・遅れているタスクの詳細",
         emoji: true,
       },
       element: {
@@ -599,13 +694,13 @@ export const buildOutPostModalBlocks = (body: SlackViewAction) => {
     });
   }
 
-  // 困ったこと・つまづいtこと入力されている場合
+  // 困ったこと・つまづいたこと入力されている場合
   if (troubleInput) {
     blocks.push({
       type: "section",
       text: {
         type: "mrkdwn",
-        text: " :loud_sound: *困っていること・躓いていること* :loud_sound:",
+        text: " :loud_sound: *困っていること・躓いていること・遅れているタスクの詳細* :loud_sound:",
       },
     });
     blocks.push({
